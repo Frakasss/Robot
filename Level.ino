@@ -1,9 +1,9 @@
 //##################################################################
 //##################################################################
 void level_drawLandscape(){
-  gb.display.cursorX = 0;
-  gb.display.cursorY = 0;
-  gb.display.print(player.pos);
+  //gb.display.cursorX = 0;
+  //gb.display.cursorY = 0;
+  //gb.display.print(player.pos);
   
   for(for_x=0;for_x<79;for_x++){
     if((landscapeplan[for_x].x_landscape*4)-player.x_world>-25 && (landscapeplan[for_x].x_landscape*4)-player.x_world<92){
