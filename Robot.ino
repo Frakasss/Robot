@@ -8,7 +8,7 @@ extern const byte PROGMEM gamelogo[];
 extern const byte PROGMEM playerSprite[4][10];
 extern const byte PROGMEM background[1][18];
 extern const byte PROGMEM landscape[10][14];
-extern const byte PROGMEM ennemy01[4][5];
+extern const byte PROGMEM ennemy01[4][12];
 extern const byte PROGMEM ennemy02[];
 extern const byte PROGMEM ennemy02b[2][3];
 extern const byte PROGMEM ennemy03[6][10];
@@ -30,6 +30,7 @@ typedef struct{
   byte pos;
   char dir;
   byte eyes;
+  byte life;
 } Player;
 
 typedef struct{
@@ -65,13 +66,9 @@ Ennemy ennemies[15];
 //#####################################################
 void setup() {
   gb.begin();
-  levelLength = 860;
-  runningLevel = 1;
-  player_Init();
-  init_map();
-  ennemy_init();
   gb.titleScreen(gamelogo);
   gb.battery.show=false;
+  runningLevel = 1;
 }
 
 
@@ -100,23 +97,44 @@ void loop() {
     level_drawBackground();
      */
 
-    
-    
-    level_drawLandscape();
-    player_checkJump();
-    if(player.jumpStatus<4){
-      player_checkVerticalPos();
-    }    
-    fnctn_checkbuttons();
-    gb.display.setColor(WHITE);
-    gb.display.fillRect(0,0,84,48);
-    gb.display.setColor(BLACK);
-    level_drawLandscape();
-    player_draw();
-    ennemy_draw();
-    ennemy_move();
-        
-    level_drawBackground();
-    
+    switch(runningLevel%2){
+      case 1:
+        level_drawIntro();
+        player_goButton();
+      break;
+
+
+      case 0:
+        level_drawLandscape();
+        player_checkJump();
+        if(player.jumpStatus<4){
+          player_checkVerticalPos();
+        }    
+        fnctn_checkbuttons();
+        gb.display.setColor(WHITE);
+        gb.display.fillRect(0,0,84,48);
+        gb.display.setColor(BLACK);
+        level_drawLandscape();
+        player_draw();
+        ennemy_draw();
+        player_checkEnnemyCollision();
+        player_checkHoleDeath();
+        player_checkLevelEnd();
+        ennemy_move();
+        level_drawBackground();
+      break;
+    }
   }
 }
+
+//#####################################################
+//#####################################################
+void Init(){
+    player_Init();
+    init_map();
+    ennemy_init();
+    switch(runningLevel){
+      case 2: levelLength = 967; break;
+    }
+}
+

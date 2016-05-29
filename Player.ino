@@ -9,6 +9,7 @@ void player_Init(){
   player.pos=0; //0:debout arret //1:debout position1 //2:debout position2 //3: accroupi
   player.dir=1;
   player.eyes=0;
+  player.life=3;
 }
 
 //##################################################################
@@ -26,6 +27,15 @@ void player_setAnimation(){
   }
 
   player.eyes = (player.eyes+1)%80;
+}
+
+//##################################################################
+//##################################################################
+void player_goButton(){
+  if(gb.buttons.pressed(BTN_B)){
+    runningLevel = runningLevel +1;
+    Init();
+  }
 }
 
 
@@ -59,100 +69,23 @@ void fnctn_checkbuttons() {
     }
   }
 
-if(gb.buttons.repeat(BTN_RIGHT,0)){
-    if(player.dir==0){
-      player.dir=1;
-    }else{
-      if(player.pos==3){player_move(1,2);}
-      else{player_move(2,2);}
-    }
-}else if(gb.buttons.repeat(BTN_LEFT,0)){
-    if(player.dir==1){
-      player.dir=0;
-    }else{
-      if(player.pos==3){player_move(1,0);}
-      else{player_move(2,0);}
-    }
-}else{
-  if(player.pos!=3){player.pos=0;}
-}
-
-  /*
   if(gb.buttons.repeat(BTN_RIGHT,0)){
-    if(player.dir==0){
-      player.dir=1;
-    }else{
-      check01 = 1;
-      for(for_y=5*player.crouch;for_y<8;for_y++){if(gb.display.getPixel(player.x_screen+5,player.y_screen+for_y)==1){check01=0;}}
-        
-      //if(gb.display.getPixel(player.x_screen+5,player.y_screen+(5*player.crouch))==1 || gb.display.getPixel(player.x_screen+5,player.y_screen+7)==1){} 
-      if(check01==0){}
-      else{
-        
-        if(player.x_screen<84){
-          if(player.x_screen<40){
-            if(player.crouch==1){player.x_screen=player.x_screen+1;}
-            else{
-              check01=1;
-              //for(for_y=5*player.pos;for_y<8;for_y++){if(gb.display.getPixel(player.x_screen+6,player.y_screen+for_y)==1){check01=0;}}
-              if(gb.display.getPixel(player.x_screen+6,player.y_screen+(5*player.crouch))==1 || gb.display.getPixel(player.x_screen+6,player.y_screen+7)==1){player.x_screen=player.x_screen+1;}
-              if(check01==0){player.x_screen=player.x_screen+1;}
-              else{player.x_screen=player.x_screen+2;}
-            }
-          }else{
-            if(player.x_world<levelLength-40){
-              if(player.pos==3){player.x_world=player.x_world+1;}
-              else{
-                if(gb.display.getPixel(player.x_screen+6,player.y_screen+(5*player.crouch))==1 || gb.display.getPixel(player.x_screen+6,player.y_screen+7)==1){player.x_world=player.x_world+1;}
-                else{player.x_world=player.x_world+2;}
-              }
-            }else{
-              if(player.pos==3){player.x_screen=player.x_screen+1;}
-              else{
-                if(gb.display.getPixel(player.x_screen+6,player.y_screen+(5*player.crouch))==1 || gb.display.getPixel(player.x_screen+6,player.y_screen+7)==1){player.x_screen=player.x_screen+1;}
-                else{player.x_screen=player.x_screen+2;}
-              }
-            }
-          }
-        }else{/*fin du niveau* /}
+      if(player.dir==0){
+        player.dir=1;
+      }else{
+        if(player.pos==3){player_move(1,2);}
+        else{player_move(2,2);}
       }
-    }
   }else if(gb.buttons.repeat(BTN_LEFT,0)){
-    if(player.dir==1){
-      player.dir=0;
-    }else{
-      if(gb.display.getPixel(player.x_screen-1,player.y_screen+(5*player.crouch))==1 || gb.display.getPixel(player.x_screen-1,player.y_screen+7)==1){}
-      else{
-        if(player.x_screen>0){
-
-          if(player.x_screen>40){
-              if(player.pos==3){player.x_screen=player.x_screen-1;}
-              else{
-                if(gb.display.getPixel(player.x_screen-2,player.y_screen+(5*player.crouch))==1 || gb.display.getPixel(player.x_screen-2,player.y_screen+7)==1){player.x_screen=player.x_screen-1;}
-                else{player.x_screen=player.x_screen-2;}
-              }
-          }else{
-            if(player.x_world>40){
-              if(player.pos==3){player.x_world=player.x_world-1;}
-              else{
-                if(gb.display.getPixel(player.x_screen-2,player.y_screen+(5*player.crouch))==1 || gb.display.getPixel(player.x_screen-2,player.y_screen+7)==1){player.x_world=player.x_world-1;}
-                else{player.x_world=player.x_world-2;}
-              }
-            }else{
-              if(player.pos==3){player.x_screen=player.x_screen-1;}
-              else{
-                if(gb.display.getPixel(player.x_screen-2,player.y_screen+(5*player.crouch))==1 || gb.display.getPixel(player.x_screen-2,player.y_screen+7)==1){player.x_screen=player.x_screen-1;}
-                else{player.x_screen=player.x_screen-2;}
-              }
-            }
-          }
-        }
+      if(player.dir==1){
+        player.dir=0;
+      }else{
+        if(player.pos==3){player_move(1,0);}
+        else{player_move(2,0);}
       }
-    }
-  }else{player.walking=0;}
-*/
-
-
+  }else{
+    if(player.pos!=3){player.pos=0;}
+  }
 }
 
 
@@ -208,7 +141,30 @@ void player_move(byte dist,byte dir){
   }
 }
 
+//
 
+
+//##################################################################
+//##################################################################
+void player_checkEnnemyCollision(){
+  //gb.collideRectRect(x1, y1, w1, h1, x2, y2, w2, h2);
+}
+
+//##################################################################
+//##################################################################
+void  player_checkHoleDeath(){
+  if(player.y_screen>48 && player.y_screen<100){
+    player.life = player.life-1;
+    Init();
+  }
+}
+//##################################################################
+//##################################################################
+void player_checkLevelEnd(){
+  if(player.x_screen>83){
+    runningLevel = runningLevel +1;
+  }
+}
 
 
 //##################################################################
