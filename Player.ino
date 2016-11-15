@@ -5,7 +5,7 @@ void player_Init(){
   player.y_screen=30;
   player.x_world=0;
   player.jumpStatus=0;
-  player.fall=0;
+  player.fall=0; // gere la vitesse de chute
   player.pos=0; //0:debout arret //1:debout position1 //2:debout position2 //3: accroupi
   player.dir=1;
   player.eyes=0;
@@ -21,7 +21,7 @@ void player_setAnimation(){
     }
   
     if(gb.buttons.repeat(BTN_RIGHT,0) || gb.buttons.repeat(BTN_LEFT,0)){
-      if(player.pos!=1){player.pos=1;}
+      if(player.pos==2){player.pos=1;}
       else{player.pos=2;}
     }
   }
@@ -48,8 +48,10 @@ void fnctn_checkbuttons() {
   if(gb.buttons.repeat(BTN_DOWN,0)){
     player.pos=3;
   }else{
-    if(player.pos==3 && (gb.display.getPixel(player.x_screen,player.y_screen)==1 || gb.display.getPixel(player.x_screen+4,player.y_screen)==1) ){}
-    else{player.pos=0;}
+    if(player.pos==3){
+      if(gb.display.getPixel(player.x_screen,player.y_screen)==1 || gb.display.getPixel(player.x_screen+4,player.y_screen)==1){}
+      else{player.pos=0;}
+  }
   }
   
   if(gb.buttons.pressed(BTN_B)){
@@ -94,6 +96,7 @@ void fnctn_checkbuttons() {
 void player_move(byte dist,byte dir){
   check01=0;
   check02=0;
+  check03=0;
   
   //check player.pos
   if(player.pos==3){check01=3;}
@@ -119,16 +122,24 @@ void player_move(byte dist,byte dir){
   
   if(dir == 2 && player.x_world+30 >= levelLength-50){check02=2;}
   if(dir == 0 && player.x_screen>30){check02=0;}
- 
+
   //check if player can move to dir
-  if(gb.display.getPixel(player.x_screen + (dist*(dir-1)) + (dir*2) - (dir-1), player.y_screen+1+check01)==0 
-  && gb.display.getPixel(player.x_screen + (dist*(dir-1)) + (dir*2)          , player.y_screen+1+check01)==0
-  && gb.display.getPixel(player.x_screen + (dist*(dir-1)) + (dir*2) - (dir-1), player.y_screen+7+player.fall)==0 
-  && gb.display.getPixel(player.x_screen + (dist*(dir-1)) + (dir*2)          , player.y_screen+7+player.fall)==0
+  for_y = 0;
+  if(player.y_screen+1+check01>0 and player.y_screen+1+check01<60){for_y=player.y_screen+1+check01;}
+  if(player.y_screen+8+player.fall>0 and player.y_screen+8+player.fall<60){
+    for(for_x=for_y;for_x<player.y_screen+8;for_x++){
+     if(gb.display.getPixel(player.x_screen + (dist*(dir-1)) + (dir*2) - (dir-1), for_x)==1){check03=1;}
+     if(gb.display.getPixel(player.x_screen + (dist*(dir-1)) + (dir*2), for_x)==1){check03=1;}
+    }
+  }
+
+  gb.display.print(player.y_screen+1+check01);
+ 
+  
+  if(check03 == 0
   && player.x_screen+(dist*(dir-1))>=0 
   && player.x_world<levelLength)   
   {
-
     switch(check02){
       case 0: player.x_screen = player.x_screen + dist*(dir-1); break;
       case 1: player.x_world = player.x_world + dist*(dir-1); break;
@@ -232,6 +243,12 @@ void player_draw(){
     case 0:    gb.display.drawBitmap(player.x_screen   ,player.y_screen,playerSprite[player.pos],NOROT, FLIPH);    break;
     case 1:    gb.display.drawBitmap(player.x_screen   ,player.y_screen,playerSprite[player.pos],NOROT,NOFLIP);    break;
   }
+
+  //gb.display.getPixel(player.x_screen + (dist*(dir-1)) + (dir*2) - (dir-1), player.y_screen+1+check01)==0 
+  //gb.display.drawPixel(player.x_screen + (dist*(dir-1)) + (dir*2)          , player.y_screen+1+check01)==0
+  //gb.display.drawPixel(player.x_screen + (dist*(dir-1)) + (dir*2) - (dir-1), player.y_screen+7+player.fall)==0 
+  //gb.display.drawPixel(player.x_screen + (dist*(dir-1)) + (dir*2)          , player.y_screen+7+player.fall)==0
+
 
   //if(player.pos!=0 && player.fall==0){
   //  gb.display.setColor(INVERT);

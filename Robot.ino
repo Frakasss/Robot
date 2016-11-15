@@ -55,8 +55,9 @@ int levelLength;
 byte runningLevel;
 byte for_x;
 byte for_y;
-byte check01;
+int check01;
 byte check02;
+byte check03;
 
 Player player;
 LandscapePlan landscapeplan[100];
@@ -114,6 +115,7 @@ void loop() {
         gb.display.setColor(WHITE);
         gb.display.fillRect(0,0,84,48);
         gb.display.setColor(BLACK);
+        //fnctn_checkbuttons();
         level_drawLandscape();
         player_draw();
         ennemy_draw();
