@@ -1,15 +1,22 @@
 //##################################################################
 //##################################################################
 void player_Init(){
-  player.x_screen=0;
+  player.x_screen=30;
   player.y_screen=30;
   player.x_world=0;
   player.jumpStatus=0;
   player.fall=0; // gere la vitesse de chute
   player.pos=0; //0:debout arret //1:debout position1 //2:debout position2 //3: accroupi
   player.dir=1;
-  player.eyes=0;
-  player.life=3;
+  //player.lives=5;
+  //player.life=9;
+  player.cpt=0;
+}
+
+//##################################################################
+//##################################################################
+void player_goButton(){
+  if(gb.buttons.pressed(BTN_B)){Init("Next");}
 }
 
 //##################################################################
@@ -26,70 +33,73 @@ void player_setAnimation(){
     }
   }
 
-  player.eyes = (player.eyes+1)%80;
+  //player.eyes = (player.eyes+1)%80;
 }
-
-//##################################################################
-//##################################################################
-void player_goButton(){
-  if(gb.buttons.pressed(BTN_B)){
-    runningLevel = runningLevel +1;
-    Init();
-  }
-}
-
 
 //##################################################################
 //##################################################################
 void fnctn_checkbuttons() {
   player_setAnimation();
   if(gb.buttons.pressed(BTN_C)){gb.titleScreen();}
-
-  if(gb.buttons.repeat(BTN_DOWN,0)){
-    player.pos=3;
-  }else{
-    if(player.pos==3){
-      if(gb.display.getPixel(player.x_screen,player.y_screen)==1 || gb.display.getPixel(player.x_screen+4,player.y_screen)==1){}
-      else{player.pos=0;}
-  }
-  }
-  
-  if(gb.buttons.pressed(BTN_B)){
-    if(player.pos!=3){
-      if(player.jumpStatus==0){
-        if(gb.display.getPixel(player.x_screen  ,player.y_screen-1)==0 && gb.display.getPixel(player.x_screen+4,player.y_screen-1)==0){player.jumpStatus = 5;}
-        if(player.jumpStatus==5 && gb.display.getPixel(player.x_screen  ,player.y_screen-2)==0 && gb.display.getPixel(player.x_screen+4,player.y_screen-2)==0){player.jumpStatus = 6;} 
-        
-        if(player.jumpStatus==6 && gb.display.getPixel(player.x_screen  ,player.y_screen-4)==0 && gb.display.getPixel(player.x_screen+4,player.y_screen-4)==0 
-        && gb.display.getPixel(player.x_screen  ,player.y_screen-3)==0 && gb.display.getPixel(player.x_screen+4,player.y_screen-3)==0){player.jumpStatus = 7;}
-  
-        if(player.jumpStatus==7 && gb.display.getPixel(player.x_screen  ,player.y_screen-6)==0 && gb.display.getPixel(player.x_screen+4,player.y_screen-6)==0 
-        && gb.display.getPixel(player.x_screen  ,player.y_screen-5)==0 && gb.display.getPixel(player.x_screen+4,player.y_screen-5)==0){player.jumpStatus = 8;}
-           
-        sound_play(5);
+  if(player.cpt<15){
+    if(gb.buttons.repeat(BTN_DOWN,0)){
+      player.pos=3;
+    }else{
+      if(player.pos==3){
+        if(gb.display.getPixel(player.x_screen,player.y_screen)==1 || gb.display.getPixel(player.x_screen+4,player.y_screen)==1){}
+        else{player.pos=0;}
+    }
+    }
+    
+    if(gb.buttons.pressed(BTN_B)){
+      if(player.pos!=3){
+        if(player.jumpStatus==0){
+          player_jump();
+          sound_play(5);
+        }
       }
     }
-  }
+  
+    if(gb.buttons.repeat(BTN_RIGHT,0)){
+        if(player.dir==0){
+          player.dir=1;
+        }else{
+          if(player.pos==3){player_move(1,2);}
+          else{player_move(2,2);}
+        }
+    }else if(gb.buttons.repeat(BTN_LEFT,0)){
+        if(player.dir==1){
+          player.dir=0;
+        }else{
+          if(player.pos==3){player_move(1,0);}
+          else{player_move(2,0);}
+        }
+    }else{
+      if(player.pos!=3){player.pos=0;}
+    }
 
-  if(gb.buttons.repeat(BTN_RIGHT,0)){
-      if(player.dir==0){
-        player.dir=1;
-      }else{
-        if(player.pos==3){player_move(1,2);}
-        else{player_move(2,2);}
-      }
-  }else if(gb.buttons.repeat(BTN_LEFT,0)){
-      if(player.dir==1){
-        player.dir=0;
-      }else{
-        if(player.pos==3){player_move(1,0);}
-        else{player_move(2,0);}
-      }
+    if(gb.buttons.pressed(BTN_A)){
+      fnctn_setBullet();   
+    }
+    
   }else{
-    if(player.pos!=3){player.pos=0;}
+    if(player.dir == 1){player_move(1,2);}else{player_move(1,0);}
   }
 }
 
+
+//##################################################################
+//##################################################################
+void player_jump(){
+  if(gb.display.getPixel(player.x_screen  ,player.y_screen-1)==0 && gb.display.getPixel(player.x_screen+4,player.y_screen-1)==0){player.jumpStatus = 5;}
+  if(player.jumpStatus==5 && gb.display.getPixel(player.x_screen  ,player.y_screen-2)==0 && gb.display.getPixel(player.x_screen+4,player.y_screen-2)==0){player.jumpStatus = 6;} 
+  
+  if(player.jumpStatus==6 && gb.display.getPixel(player.x_screen  ,player.y_screen-4)==0 && gb.display.getPixel(player.x_screen+4,player.y_screen-4)==0 
+  && gb.display.getPixel(player.x_screen  ,player.y_screen-3)==0 && gb.display.getPixel(player.x_screen+4,player.y_screen-3)==0){player.jumpStatus = 7;}
+
+  if(player.jumpStatus==7 && gb.display.getPixel(player.x_screen  ,player.y_screen-6)==0 && gb.display.getPixel(player.x_screen+4,player.y_screen-6)==0 
+  && gb.display.getPixel(player.x_screen  ,player.y_screen-5)==0 && gb.display.getPixel(player.x_screen+4,player.y_screen-5)==0){player.jumpStatus = 8;}
+}
 
 //##################################################################
 //##################################################################
@@ -118,10 +128,12 @@ void player_move(byte dist,byte dir){
   if(dir == 0 && player.x_world>1){check02 = 1;}   //OK
   
   if(dir == 2 && player.x_screen>=30 && player.x_world+30 < levelLength-44){check02 = 1;} //OK
-  if(dir == 0 && player.x_screen>=32 && player.x_world+32 < levelLength-44){check02 = 1;} //OK
+  if(dir == 0 && player.x_screen>=32 && player.x_world+32 < levelLength-44){check02 = 1;} //OK44
   
-  if(dir == 2 && player.x_world+30 >= levelLength-50){check02=2;}
-  if(dir == 0 && player.x_screen>30){check02=0;}
+  if(dir == 2 && player.x_world+30 >= levelLength-50){check02=2;}//50
+  if(dir == 0 && player.x_screen>30){check02=0;}//30
+  
+  if(dir == 0 && player.x_world>levelLength-110){check02=0;}
 
   //check if player can move to dir
   for_y = 0;
@@ -131,10 +143,7 @@ void player_move(byte dist,byte dir){
      if(gb.display.getPixel(player.x_screen + (dist*(dir-1)) + (dir*2) - (dir-1), for_x)==1){check03=1;}
      if(gb.display.getPixel(player.x_screen + (dist*(dir-1)) + (dir*2), for_x)==1){check03=1;}
     }
-  }
-
-  gb.display.print(player.y_screen+1+check01);
- 
+  } 
   
   if(check03 == 0
   && player.x_screen+(dist*(dir-1))>=0 
@@ -152,28 +161,153 @@ void player_move(byte dist,byte dir){
   }
 }
 
-//
-
 
 //##################################################################
 //##################################################################
 void player_checkEnnemyCollision(){
+  if(player.cpt>0){player.cpt = player.cpt - 1;}
   //gb.collideRectRect(x1, y1, w1, h1, x2, y2, w2, h2);
+  
+  if(player.cpt<5){
+    for(for_x=0;for_x<ennemiesNumber;for_x++){
+      if(ennemies[for_x].life>0){
+        byte tmp = 0;
+        if(player.pos==3){tmp=3;}
+        
+        switch(ennemies[for_x].type){
+          //larve
+          case 0:
+            if(gb.collideRectRect(player.x_screen+1, player.y_screen+1+tmp,3,6, ennemies[for_x].x-player.x_world+2, ennemies[for_x].y+1,7,4)){
+              player_jump();
+              if(player.cpt==0){player.life = player.life - 1;}
+              player.cpt = 20; 
+              if(player.x_screen<ennemies[for_x].x-player.x_world+6){
+                player.dir = 0; player_move(2,0);
+              }else{
+                player.dir = 1; player_move(2,2);
+              }
+            }
+          break;
+          
+          //ufo
+          case 1:
+            if(gb.collideRectRect(player.x_screen+1, player.y_screen+1+tmp,3,6, ennemies[for_x].x-player.x_world+1, ennemies[for_x].y+1,5,5)){
+              player_jump();
+              if(player.cpt==0){player.life = player.life - 1;}
+              player.cpt = 20;
+              if(ennemies[for_x].dir==0){
+                player.dir = 0; player_move(2,0);
+              }else{
+                player.dir = 1; player_move(2,2);
+              }  
+            }          
+          break;
+
+          //robot2
+          case 2:
+            if(gb.collideRectRect(player.x_screen+1, player.y_screen+1+tmp,3,6, ennemies[for_x].x-player.x_world+1, ennemies[for_x].y+1,3,5)){
+              player_jump();
+              if(player.dir == 1){player.dir = 0; player_move(2,0);}else{player.dir = 1; player_move(2,2);}
+              if(player.cpt==0){player.life = player.life - 1;}
+              player.cpt = 20;  
+            }           
+          break;
+          
+          //rocket ##############
+          case 3:
+            if(gb.collideRectRect(player.x_screen+1, player.y_screen+1+tmp,3,6, ennemies[for_x].x-player.x_world+1, ennemies[for_x].y+1,5,5)){
+              player_jump();
+              if(player.cpt==0){player.life = player.life - 1;}
+              player.cpt = 20;
+              if(ennemies[for_x].dir==0){
+                player.dir = 0; player_move(2,0);
+              }else{
+                player.dir = 1; player_move(2,2);
+              }  
+            }
+          break;
+          
+          //tesla tour ################
+          case 4:
+            if(gb.collideRectRect(player.x_screen+1, player.y_screen+1+tmp,3,6, ennemies[for_x].x-player.x_world+1, ennemies[for_x].y+1,3,2)){
+              player_jump();
+              if(player.cpt==0){player.life = player.life - 1;}
+              player.cpt = 20;
+              if(ennemies[for_x].dir==0){
+                player.dir = 0; player_move(2,0);
+              }else{
+                player.dir = 1; player_move(2,2);
+              }  
+            }
+          break;
+  
+          //jumper #############
+          case 5:
+            if(gb.collideRectRect(player.x_screen+1, player.y_screen+1+tmp,3,6, ennemies[for_x].x-player.x_world+1, ennemies[for_x].y+1,5,6)){
+              player_jump();
+              if(player.cpt==0){player.life = player.life - 1;}
+              player.cpt = 20;
+              if(ennemies[for_x].dir==0){
+                player.dir = 0; player_move(2,0);
+              }else{
+                player.dir = 1; player_move(2,2);
+              }  
+            }
+          break;
+
+          //ghost #############
+          case 6:
+            if(gb.collideRectRect(player.x_screen+1, player.y_screen+1+tmp,3,6, ennemies[for_x].x-player.x_world+1, ennemies[for_x].y+1,3,4)){
+              player_jump();
+              if(player.cpt==0){player.life = player.life - 1;}
+              player.cpt = 20;
+              if(ennemies[for_x].dir==0){
+                player.dir = 0; player_move(2,0);
+              }else{
+                player.dir = 1; player_move(2,2);
+              }  
+            }
+          break;
+
+          //Boss #############
+          case 10:
+            if(   gb.collideRectRect(player.x_screen+1, player.y_screen+1+tmp,3,6, ennemies[for_x].x-player.x_world+1,ennemies[for_x].y+3,10,11)
+               or gb.collideRectRect(player.x_screen+2, player.y_screen+1+tmp,3,6, ennemies[for_x].x-player.x_world+0,ennemies[for_x].y+14,12,11)
+               or gb.collideRectRect(player.x_screen+2, player.y_screen+1+tmp,3,6, ennemies[for_x].x-player.x_world-1,ennemies[for_x].y+25,14,7)){
+              player_jump();
+              if(player.cpt==0){player.life = player.life - 1;}
+              player.cpt = 20;
+              if(ennemies[for_x].dir==0){
+                player.dir = 0; player_move(2,0);
+              }else{
+                player.dir = 1; player_move(2,2);
+              }  
+            }
+          break;
+
+          
+        }
+      }else{
+        if(ennemies[for_x].counter>0){
+          ennemies[for_x].counter = ennemies[for_x].counter-1;
+        }
+      }
+    }
+  } 
 }
 
 //##################################################################
 //##################################################################
-void  player_checkHoleDeath(){
-  if(player.y_screen>48 && player.y_screen<100){
-    player.life = player.life-1;
-    Init();
+void  player_checkDeath(){
+  if((player.y_screen>48 && player.y_screen<100) or (player.life==0)){
+    Init("Prev");
   }
 }
 //##################################################################
 //##################################################################
 void player_checkLevelEnd(){
-  if(player.x_screen>83){
-    runningLevel = runningLevel +1;
+  if(player.x_screen+player.x_world>levelLength-54){
+    Init("Next");
   }
 }
 
@@ -238,24 +372,31 @@ void player_checkVerticalPos(){
 
 //##################################################################
 //##################################################################
+void player_drawHud(){
+  gb.display.cursorX = 6;
+  gb.display.print("S");
+  gb.display.print(player.score);
+  
+  gb.display.drawBitmap(35,0,heart);
+  gb.display.drawRect(42,0,14,5);
+  gb.display.fillRect(43,1,player.life*2,3);
+  
+  gb.display.drawBitmap(69,-3,playerSprite[3]);
+  gb.display.cursorX = 75;
+  gb.display.print(player.lives);
+
+}
+
+//##################################################################
+//##################################################################
 void player_draw(){
-  switch(player.dir){
-    case 0:    gb.display.drawBitmap(player.x_screen   ,player.y_screen,playerSprite[player.pos],NOROT, FLIPH);    break;
-    case 1:    gb.display.drawBitmap(player.x_screen   ,player.y_screen,playerSprite[player.pos],NOROT,NOFLIP);    break;
+
+  if(player.cpt%2 == 0){
+    switch(player.dir){
+      case 0:    gb.display.drawBitmap(player.x_screen   ,player.y_screen,playerSprite[player.pos],NOROT, FLIPH);    break;
+      case 1:    gb.display.drawBitmap(player.x_screen   ,player.y_screen,playerSprite[player.pos],NOROT,NOFLIP);    break;
+    }   
   }
-
-  //gb.display.getPixel(player.x_screen + (dist*(dir-1)) + (dir*2) - (dir-1), player.y_screen+1+check01)==0 
-  //gb.display.drawPixel(player.x_screen + (dist*(dir-1)) + (dir*2)          , player.y_screen+1+check01)==0
-  //gb.display.drawPixel(player.x_screen + (dist*(dir-1)) + (dir*2) - (dir-1), player.y_screen+7+player.fall)==0 
-  //gb.display.drawPixel(player.x_screen + (dist*(dir-1)) + (dir*2)          , player.y_screen+7+player.fall)==0
-
-
-  //if(player.pos!=0 && player.fall==0){
-  //  gb.display.setColor(INVERT);
-  //  gb.display.drawPixel(player.x_screen+(player.pos*2)-1,player.y_screen+7);
-  //  gb.display.setColor(BLACK);
-  //}
-
-  if(player.eyes==0 ||player.eyes==1 || player.eyes==40 || player.eyes==41 || player.eyes==45 || player.eyes==46 || player.eyes==90 || player.eyes==91){gb.display.drawFastHLine(player.x_screen+1,player.y_screen+2+(player.pos),3);}
+  //if(player.eyes==0 ||player.eyes==1 || player.eyes==40 || player.eyes==41 || player.eyes==45 || player.eyes==46 || player.eyes==90 || player.eyes==91){gb.display.drawFastHLine(player.x_screen+1,player.y_screen+2+(player.pos),3);}
   
 }
